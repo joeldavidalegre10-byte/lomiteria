@@ -12,8 +12,10 @@ import { MesasView } from './components/MesasView';
 import { DeliveryView } from './components/DeliveryView';
 import { InventoryView } from './components/InventoryView';
 import { ReportsView } from './components/ReportsView';
+import { PreInvoiceModal } from './components/PreInvoiceModal';
 import { products as initialProducts } from './data/products';
 import type { Product, CartItem, OrderType, ActiveOrder, Sale, PaymentMethod, AuthUser } from './types';
+import type { ConsolidatedOrder } from './utils/orderConsolidation';
 
 export default function App() {
   // Auth
@@ -33,6 +35,7 @@ export default function App() {
   const [selectedOrder, setSelectedOrder] = useState<ActiveOrder | null>(null);
   const [sales, setSales] = useState<Sale[]>([]);
   const [lastSale, setLastSale] = useState<Sale | null>(null);
+  const [preInvoiceOrder, setPreInvoiceOrder] = useState<ConsolidatedOrder | null>(null);
 
   // Load from localStorage
   useEffect(() => {
@@ -261,6 +264,7 @@ export default function App() {
             <MesasView
               orders={mesaOrders}
               onOrderClick={handleOrderClick}
+              onPrintReceipt={(consolidated) => setPreInvoiceOrder(consolidated)}
             />
           )}
 
@@ -269,6 +273,7 @@ export default function App() {
             <DeliveryView
               orders={deliveryOrders}
               onOrderClick={handleOrderClick}
+              onPrintReceipt={(consolidated) => setPreInvoiceOrder(consolidated)}
             />
           )}
 
@@ -307,6 +312,13 @@ export default function App() {
           order={selectedOrder}
           onConfirm={handleConfirmSale}
           onClose={() => setSelectedOrder(null)}
+        />
+      )}
+
+      {preInvoiceOrder && (
+        <PreInvoiceModal
+          order={preInvoiceOrder}
+          onClose={() => setPreInvoiceOrder(null)}
         />
       )}
     </div>
