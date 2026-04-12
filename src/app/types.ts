@@ -23,13 +23,21 @@ export interface CartItem {
   id: string;
   productId: string;
   name: string;
-  price: number;
+  price: number;         // precio total (base + modificadores)
+  basePrice: number;     // precio base del producto sin extras
   quantity: number;
   modifiers?: string[];
+  modifierDetails?: { name: string; price: number }[];
 }
 
 export type OrderType = 'mesa' | 'delivery';
-export type PaymentMethod = 'efectivo' | 'tarjeta' | 'transferencia';
+export type PaymentMethod = 'efectivo' | 'tarjeta' | 'transferencia' | 'mixto';
+
+export interface MixedPayment {
+  efectivo: number;
+  tarjeta: number;
+  transferencia: number;
+}
 
 export interface ActiveOrder {
   id: string;
@@ -48,4 +56,5 @@ export interface Sale extends ActiveOrder {
   completedAt: string;
   cashReceived?: number;
   change?: number;
+  mixedPayment?: MixedPayment;
 }

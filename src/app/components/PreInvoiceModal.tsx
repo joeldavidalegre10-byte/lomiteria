@@ -20,7 +20,7 @@ export function PreInvoiceModal({ order, onClose }: PreInvoiceModalProps) {
       <div className="bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-[#1a1a1a] border-b border-[#2a2a2a] px-6 py-4 flex items-center justify-between">
-          <h3 className="text-[#f0f0f0] text-lg">Prefactura</h3>
+          <h3 className="text-[#f0f0f0] text-lg">Nota de Venta</h3>
           <div className="flex gap-2">
             <button
               onClick={handlePrint}
@@ -45,7 +45,7 @@ export function PreInvoiceModal({ order, onClose }: PreInvoiceModalProps) {
             <div className="text-center mb-6 border-b-2 border-dashed border-gray-400 pb-4">
               <div className="text-2xl mb-2">🌯</div>
               <div className="text-xl font-bold">{invoiceData.businessName}</div>
-              <div className="text-xs mt-2">PREFACTURA</div>
+              <div className="text-xs mt-2">NOTA DE VENTA</div>
             </div>
 
             {/* Info */}
@@ -102,17 +102,9 @@ export function PreInvoiceModal({ order, onClose }: PreInvoiceModalProps) {
 
             {/* Totals */}
             <div className="border-t-2 border-dashed border-gray-400 pt-3 space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span>{formatPrice(invoiceData.subtotal)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>IVA (21%):</span>
-                <span>{formatPrice(invoiceData.iva)}</span>
-              </div>
               <div className="flex justify-between font-bold text-base border-t border-gray-400 pt-2 mt-2">
                 <span>TOTAL:</span>
-                <span>{formatPrice(invoiceData.total)}</span>
+                <span>{formatPrice(invoiceData.subtotal)}</span>
               </div>
             </div>
 

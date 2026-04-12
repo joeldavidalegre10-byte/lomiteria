@@ -14,8 +14,7 @@ export function CheckoutModal({ items, orderType, onConfirm, onClose }: Checkout
   const [tableNumber, setTableNumber] = useState<number>(1);
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const iva = subtotal * 0.21;
-  const total = subtotal + iva;
+  const total = subtotal; // Sin IVA: precio exacto
 
   const handleConfirm = () => {
     onConfirm(orderType === 'mesa' ? tableNumber : undefined);

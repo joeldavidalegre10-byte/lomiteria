@@ -52,12 +52,12 @@ export function consolidateOrders(orders: ActiveOrder[]): ConsolidatedOrder[] {
     // Consolidar items duplicados
     const consolidatedItems = consolidateItems(allItems);
 
-    // Calcular totales
+    // Calcular totales (sin IVA: precio exacto del producto)
     const subtotal = consolidatedItems.reduce((sum, item) =>
       sum + item.price * item.quantity, 0
     );
-    const iva = subtotal * 0.21;
-    const total = subtotal + iva;
+    const iva = 0;
+    const total = subtotal;
 
     consolidated.push({
       id: firstOrder.id,

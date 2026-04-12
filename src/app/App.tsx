@@ -14,7 +14,7 @@ import { InventoryView } from './components/InventoryView';
 import { ReportsView } from './components/ReportsView';
 import { PreInvoiceModal } from './components/PreInvoiceModal';
 import { products as initialProducts } from './data/products';
-import type { Product, CartItem, OrderType, ActiveOrder, Sale, PaymentMethod, AuthUser } from './types';
+import type { Product, CartItem, OrderType, ActiveOrder, Sale, PaymentMethod, AuthUser, MixedPayment } from './types';
 import type { ConsolidatedOrder } from './utils/orderConsolidation';
 
 export default function App() {
@@ -73,10 +73,12 @@ export default function App() {
       setLastSale(null);
     }
 
-    const modifierPrice = modifiers.reduce((sum, modName) => {
+    const modifierDetails = modifiers.map(modName => {
       const mod = product.modifiers?.find(m => m.name === modName);
-      return sum + (mod?.price || 0);
-    }, 0);
+      return { name: modName, price: mod?.price || 0 };
+    });
+
+    const modifierPrice = modifierDetails.reduce((sum, m) => sum + m.price, 0);
 
     const existingItem = cartItems.find(
       item => item.productId === product.id &&
@@ -95,8 +97,10 @@ export default function App() {
         productId: product.id,
         name: product.name,
         price: product.price + modifierPrice,
+        basePrice: product.price,
         quantity: 1,
         modifiers: modifiers.length > 0 ? modifiers : undefined,
+        modifierDetails: modifierDetails.filter(m => m.price !== 0).length > 0 ? modifierDetails : undefined,
       };
       setCartItems([...cartItems, newItem]);
     }
@@ -120,8 +124,7 @@ export default function App() {
   // ── Order handlers ─────────────────────────────────────────────
   const handleAssignOrder = (tableNumber?: number) => {
     const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const iva = subtotal * 0.21;
-    const total = subtotal + iva;
+    const total = subtotal; // Sin IVA: precio exacto definido en el producto
 
     const deliveryCount = activeOrders.filter(o => o.orderType === 'delivery').length;
     const deliveryNumber = orderType === 'delivery' ? deliveryCount + 1 : undefined;
@@ -133,7 +136,7 @@ export default function App() {
       tableNumber,
       deliveryNumber,
       subtotal,
-      iva,
+      iva: 0,
       total,
       timestamp: new Date().toISOString(),
     };
@@ -152,7 +155,7 @@ export default function App() {
     setSelectedOrder(order);
   };
 
-  const handleConfirmSale = (paymentMethod: PaymentMethod, cashReceived?: number, change?: number) => {
+  const handleConfirmSale = (paymentMethod: PaymentMethod, cashReceived?: number, change?: number, mixedPayment?: MixedPayment) => {
     if (!selectedOrder) return;
 
     const newSale: Sale = {
@@ -161,6 +164,7 @@ export default function App() {
       completedAt: new Date().toISOString(),
       cashReceived,
       change,
+      mixedPayment,
     };
 
     const updatedSales = [newSale, ...sales];
@@ -279,7 +283,13 @@ export default function App() {
 
           {/* Inventario — admin only */}
           {activeView === 'inventario' && user.role === 'admin' && (
-            <InventoryView />
+            <InventoryView
+              products={products}
+              onProductsChange={(updated) => {
+                setProducts(updated);
+                localStorage.setItem('lomiteria_products', JSON.stringify(updated));
+              }}
+            />
           )}
 
           {/* Reportes — admin only */}

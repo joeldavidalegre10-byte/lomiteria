@@ -21,9 +21,8 @@ export function Cart({
   onCheckout,
   lastSale
 }: CartProps) {
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const iva = subtotal * 0.21; // 21% IVA Argentina
-  const total = subtotal + iva;
+  // Total exacto: suma de precios sin IVA
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <aside className="w-80 bg-[#0d0d0d] border-l border-[#161616] flex flex-col shrink-0">
@@ -73,7 +72,27 @@ export function Cart({
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex-1 min-w-0">
                     <h4 className="text-[#d0d0d0] text-sm truncate">{item.name}</h4>
-                    {item.modifiers && item.modifiers.length > 0 && (
+
+                    {/* Modifier details with prices */}
+                    {item.modifierDetails && item.modifierDetails.length > 0 && (
+                      <div className="mt-1 space-y-0.5">
+                        {item.modifierDetails.map((mod, idx) => (
+                          <div key={idx} className="flex items-center justify-between">
+                            <span className="text-xs text-[#555] truncate">
+                              + {mod.name}
+                            </span>
+                            {mod.price !== 0 && (
+                              <span className={`text-[10px] ml-1 shrink-0 ${mod.price > 0 ? 'text-[#ff5722]/70' : 'text-green-500/70'}`}>
+                                {mod.price > 0 ? '+' : ''}{formatPrice(Math.abs(mod.price))}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Free modifiers (no extra cost) */}
+                    {item.modifiers && item.modifiers.length > 0 && !item.modifierDetails && (
                       <p className="text-xs text-[#444] mt-0.5 truncate">
                         {item.modifiers.join(', ')}
                       </p>
@@ -87,7 +106,7 @@ export function Cart({
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mt-2">
                   <div className="flex items-center gap-1.5 bg-[#161616] rounded-lg p-1">
                     <button
                       onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
@@ -117,19 +136,9 @@ export function Cart({
 
       {items.length > 0 && (
         <div className="border-t border-[#161616] p-4">
-          <div className="space-y-2 mb-4">
-            <div className="flex justify-between text-xs">
-              <span className="text-[#444]">Subtotal</span>
-              <span className="text-[#d0d0d0]">{formatPrice(subtotal)}</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-[#444]">IVA (21%)</span>
-              <span className="text-[#d0d0d0]">{formatPrice(iva)}</span>
-            </div>
-            <div className="flex justify-between border-t border-[#1a1a1a] pt-2">
-              <span className="text-[#d0d0d0] text-sm">Total</span>
-              <span className="text-[#ff5722]">{formatPrice(total)}</span>
-            </div>
+          <div className="flex justify-between items-center mb-4 border-t border-[#1a1a1a] pt-3">
+            <span className="text-[#d0d0d0] text-sm">Total</span>
+            <span className="text-[#ff5722] text-xl">{formatPrice(total)}</span>
           </div>
 
           <button
